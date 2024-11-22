@@ -1,18 +1,20 @@
-export interface LinkType {
+export interface WebType {
   id: number,
-  name: string
+  name: string,
+  order: number
 }
 
 export interface Web {
-  id: number;
-  title: string;
-  description: string;
-  email: string;
-  image: string;
-  url: string;
-  rss: string;
-  typeId: number;
-  type: LinkType;
-  auditStatus: number;
-  createTime?: string;
+  id: number,
+  title: string,
+  description: string,
+  email: string,
+  image: string,
+  url: string,
+  rss: string,
+  order: number,
+  typeId: number,
+  type: WebType,
+  auditStatus: number,
+  createTime?: string
 }

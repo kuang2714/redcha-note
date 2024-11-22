@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Tabs, Input, Button, Form, Spin, Empty, Card, Popconfirm, Select, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { getLinkListAPI, addLinkDataAPI, editLinkDataAPI, delLinkDataAPI, getLinkTypeListAPI } from '@/api/Web';
-import { LinkType, Web } from '@/types/app/web';
+import { getLinkListAPI, addLinkDataAPI, editLinkDataAPI, delLinkDataAPI, getWebTypeListAPI } from '@/api/Web';
+import { WebType, Web } from '@/types/app/web';
 import Title from '@/components/Title';
 import { RuleObject } from 'antd/es/form';
 import './index.scss';
 
 const LinkPage = () => {
     const [loading, setLoading] = useState(false);
+    const [btnLoading, setBtnLoading] = useState(false)
+
     const [tab, setTab] = useState<string>('list');
     const [list, setList] = useState<Web[]>([]);
     const [listTemp, setListTemp] = useState<Web[]>([]);
-    const [typeList, setTypeList] = useState<LinkType[]>([]);
+    const [typeList, setTypeList] = useState<WebType[]>([]);
     const [search, setSearch] = useState<string>('');
     const [link, setLink] = useState<Web>({} as Web);
 
@@ -22,21 +24,24 @@ const LinkPage = () => {
     // 获取网站列表
     const getLinkList = async () => {
         const { data } = await getLinkListAPI();
+        data.sort((a, b) => a.order - b.order)
+        data.sort((a, b) => a.type.order - b.type.order)
+
         setList(data as Web[]);
         setListTemp(data as Web[]);
         setLoading(false);
     };
 
     // 获取网站类型列表
-    const getLinkTypeList = async () => {
-        const { data } = await getLinkTypeListAPI();
+    const getWebTypeList = async () => {
+        const { data } = await getWebTypeListAPI();
         setTypeList(data);
     };
 
     useEffect(() => {
         setLoading(true);
         getLinkList();
-        getLinkTypeList();
+        getWebTypeList();
     }, []);
 
     useEffect(() => {
@@ -72,9 +77,9 @@ const LinkPage = () => {
     };
 
     const submit = async () => {
-        form.validateFields().then(async (values: Web) => {
-            setLoading(true);
+        setBtnLoading(true)
 
+        form.validateFields().then(async (values: Web) => {
             if (isMethod === "edit") {
                 await editLinkDataAPI({ ...link, ...values });
                 message.success('🎉 编辑网站成功');
@@ -87,6 +92,8 @@ const LinkPage = () => {
             setTab('list');
             reset()
         });
+
+        setBtnLoading(false)
     };
 
     const { Option } = Select;
@@ -144,7 +151,7 @@ const LinkPage = () => {
                                 }
                             </div>
                         ) : (
-                            <Empty description="暂无数据" className='my-7'/>
+                            <Empty description="暂无数据" className='my-7' />
                         )}
                     </Spin>
                 </>
@@ -189,8 +196,12 @@ const LinkPage = () => {
                                 </Select>
                             </Form.Item>
 
+                            <Form.Item label="顺序" name="order">
+                                <Input placeholder="请输入网站顺序（值越小越靠前）" />
+                            </Form.Item>
+
                             <Form.Item>
-                                <Button type="primary" htmlType="submit" className='w-full'>{isMethod === "edit" ? '编辑网站' : '新增网站'}</Button>
+                                <Button type="primary" htmlType="submit" loading={btnLoading} className='w-full'>{isMethod === "edit" ? '编辑网站' : '新增网站'}</Button>
                             </Form.Item>
                         </Form>
                     </div>
