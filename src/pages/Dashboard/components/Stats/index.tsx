@@ -76,12 +76,7 @@ export default () => {
                 }
             });
 
-            setStats({ 
-                pv, 
-                ip, 
-                bounce: count !== 0 ? bounce / count : 0,
-                avgTime: count !== 0 ? formatTime(avgTime / count) : '00:00:00',
-            })
+            setStats({ pv, ip, bounce: (bounce / count) || 0, avgTime: formatTime(avgTime / count) || "00:00:00" })
 
             setLoading(false)
         } catch (error) {
